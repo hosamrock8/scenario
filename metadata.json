@@ -1,0 +1,6 @@
+{
+  "name": "AI Video Factory",
+  "description": "مصنع أفكار وسيناريوهات لأتمتة إنتاج فيديوهات الذكاء الاصطناعي - أداة متكاملة لإنشاء النصوص والمطالبات.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Lato', ui-sans-serif, system-ui, sans-serif;
+  --color-ferrari: #D40000;
+  --color-ferrari-hover: #b30000;
+  --color-dark-bg: #1E1E1E; /* Pure Black for luxury */
+  --color-dark-surface: #0a0a0a;
+}
+
+@layer base {
+  :root {
+    --rosso-ferrari: #D40000;
+    --bg-dark: #1E1E1E;
+    --glass: rgba(20, 20, 20, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --accent-glow: rgba(212, 0, 0, 0.2);
+  }
+
+  body {
+    @apply bg-[var(--bg-dark)] text-white font-sans min-h-screen overflow-x-hidden;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer utilities {
+  .glass-panel, .glass-card {
+    background: transparent;
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+  }
+  .glass-panel-hover {
+    @apply hover:bg-white/5 hover:border-white/30 transition-all duration-300;
+  }
+  .active-border {
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    position: relative;
+    background: rgba(255,255,255,0.05);
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  /* Recipe 4: Dark Luxury Typographic Primitives */
+  .title-text {
+    font-size: 80px;
+    line-height: 0.9;
+    font-weight: 300; /* Very light */
+    letter-spacing: -1px;
+  }
+
+  .nav-pill {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 400;
+    background: transparent;
+    transition: all 0.3s ease;
+  }
+  .nav-pill:hover, .nav-pill.active {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+
+  .small-caps {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .horizontal-line {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .circle-button {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  .circle-button:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: scale(1.05);
+  }
+
+  /* PrismJS Custom Prompt Syntax Colors */
+  .token.keyword {
+    color: #4ade80; /* emerald-400 */
+    font-weight: 600;
+  }
+  .token.number {
+    color: #f472b6; /* pink-400 */
+  }
+  .token.punctuation {
+    color: #94a3b8; /* slate-400 */
+  }
+  .token.operator {
+    color: #38bdf8; /* sky-400 */
+  }
+  .token.important {
+    color: #f87171; /* red-400 */
+    font-weight: bold;
+  }
+  .token.string {
+    color: #fbbf24; /* amber-400 */
+  }
+  .token.function {
+    color: #a78bfa; /* violet-400 */
+  }
+  
+  .prompt-editor-container textarea {
+    outline: none !important;
+  }
+}
+
