@@ -63,7 +63,18 @@ async function callAI(prompt: string, expectJson: boolean = false): Promise<stri
     })
   });
 
-  const data = await response.json();
+  const textResponse = await response.text();
+  let data;
+  try {
+    data = JSON.parse(textResponse);
+  } catch (e) {
+    if (!response.ok) {
+      throw new Error(`Server Error (${response.status}): ${textResponse.slice(0, 100)}`);
+    } else {
+      throw new Error(`Invalid JSON response: ${textResponse.slice(0, 100)}`);
+    }
+  }
+
   if (!response.ok) {
     throw new Error(data.error || 'Unknown error from server');
   }
@@ -71,9 +82,9 @@ async function callAI(prompt: string, expectJson: boolean = false): Promise<stri
   return data.text;
 }
 
-async function withRetry<T>(operation: () => Promise<T>, maxRetries = 3): Promise<T> {
+async function withRetry<T>(operation: () => Promise<T>, maxRetries = 4): Promise<T> {
   let attempt = 0;
-  const initialDelayMs = 1000;
+  const initialDelayMs = 1500;
 
   while (attempt < maxRetries) {
     try {
@@ -89,6 +100,9 @@ async function withRetry<T>(operation: () => Promise<T>, maxRetries = 3): Promis
         errorMsg.includes('500') ||
         errorMsg.includes('503') ||
         errorMsg.includes('429') ||
+        errorMsg.includes('rate limit') ||
+        errorMsg.includes('rate exceeded') ||
+        errorMsg.includes('too many requests') ||
         error.status === 429 ||
         error.status >= 500
       );
@@ -98,8 +112,8 @@ async function withRetry<T>(operation: () => Promise<T>, maxRetries = 3): Promis
         
         if (error.status === 401 || error.status === 403 || errorMsg.includes('api key') || errorMsg.includes('unauthorized') || errorMsg.includes('غير مقوم')) {
           userMessage = "مفتاح API غير صالح أو غير مصرح به. يرجى التحقق من إعدادات المفتاح.";
-        } else if (isQuotaError || error.status === 429 || errorMsg.includes('rate limit')) {
-          userMessage = "تم تجاوز الحد المسموح للاستخدام (Rate Limit / Quota Exceeded). يرجى المحاولة لاحقاً أو استخدام مفتاح API الخاص بك في الإعدادات.";
+        } else if (isQuotaError || error.status === 429 || errorMsg.includes('rate limit') || errorMsg.includes('rate exceeded')) {
+          userMessage = "تم تجاوز الحد المسموح للاستخدام أو ضغط على السيرفر (Rate Limit). يرجى المحاولة لاحقاً أو استخدام مفتاح API الخاص بك في الإعدادات.";
         } else if (errorMsg.includes('not found') || error.status === 404 || errorMsg.includes('لا يوجد نموذج') || errorMsg.includes('model')) {
           userMessage = "النموذج المحدد غير موجود أو غير متاح. يرجى التأكد من اسم النموذج في الإعدادات (مثال: meta-llama/llama-3-8b-instruct).";
         } else if (error.status >= 500 || errorMsg.includes('500') || errorMsg.includes('503') || errorMsg.includes('504')) {
@@ -472,7 +486,18 @@ export async function analyzeCharacterImage(imageBase64: string): Promise<string
     })
   });
 
-  const data = await response.json();
+  const textResponse = await response.text();
+  let data;
+  try {
+    data = JSON.parse(textResponse);
+  } catch (e) {
+    if (!response.ok) {
+      throw new Error(`Server Error (${response.status}): ${textResponse.slice(0, 100)}`);
+    } else {
+      throw new Error(`Invalid JSON response: ${textResponse.slice(0, 100)}`);
+    }
+  }
+
   if (!response.ok) {
     throw new Error(data.error || 'Unknown error from server');
   }
@@ -559,12 +584,16 @@ ${JSON.stringify(scenario, null, 2)}
 
   try {
     let text = await withRetry(() => callAI(prompt, true));
+    
+    // Strip markdown blocks if present
+    text = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '').trim();
+
     let parsed = JSON.parse(text);
     if (!Array.isArray(parsed) && parsed.scenario) parsed = parsed.scenario;
     if (Array.isArray(parsed) && parsed.length > 0) return parsed as Scene[];
     return scenario;
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error bulk enhancing scenario:", err);
-    return scenario;
+    throw new Error(err.message || "فشل في تحليل الرد من الذكاء الاصطناعي");
   }
 }
